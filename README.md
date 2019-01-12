@@ -2,19 +2,12 @@
 
 ## Version
 2018-12-21-1
-SDK Version 0.0.35
+Android SDK Version 0.0.13
 
 ## Update History
-- 2018-12-21 Added failOnAutomaticEstimationFailure
 - 2018-12-19 Added Android SDK
 
 ## Install
-### iOS
-Use cocoapods.
-
-```
-pod 'BodyBankEnterprise'
-```
 
 ### Android
 Use gradle.
@@ -31,61 +24,21 @@ dependencies{
 }
 ```
 
-### Javascript
-Use npm/yarn. (Not distributed yet)
-
-```
-yarn add bodybank-enterprise
-```
-
 ## Usage
 
 
 ### Set up
-#### iOS
-Include the `bodybank-config.json` file into main bundle by dragging the file into project navigator on Xcode.
-The file is provided after making a contract.
 
 #### Android
 Include the `bodybank_config.json` file into raw resource by locating the file in the directory.
 The file is provided after making a contract.
-
-
-#### Javascript
-Place the `bodybank-config.json` file into an accessible directory and provide the path in initializer.
 
 ### Mobile SDK
 
 #### Token Provider 
 Instantiate the `DefaultTokenProvider` and set `restoreTokenBlock`.
 This block is called whenever a token is nearly expired or expired.
-#### iOS
-```swift
-let tokenProvider = DefaultTokenProvider()
-tokenProvider.setRestoreTokenBlock(block: {[unowned self] callback in
-    let token = BodyBankToken()
-    //Refresh token and create a BodyBank token from jwt_token & identity_id
-    //Then call a callback with (token, error)
-    //For example, if you want to get a token using firebase function
-    let functions = Functions.functions()
-    functions.httpsCallable("getBodyBankJWTToken").call {(result, error) in
-        if let error = error{
-            print(error.localizedDescription)
-            callback(nil, error)
-        }else{
-            var token = BodyBankToken()
-            if let jwtToken = (result?.data as? Dictionary<String, Any>)?["jwt_token"] as? String{
-                token.jwtToken = jwtToken
-            }
-            if let identityId = (result?.data as? Dictionary<String, Any>)?["identity_id"] as? String{
-                token.identityId = identityId
-            }
-            callback(token, nil)
-        }
-    }
-})
 
-```
 
 #### Android
 ```
@@ -116,14 +69,6 @@ tokenProvider.setRestoreTokenBlock(block: {[unowned self] callback in
 #### DirectTokenProvider for development use only
 
 Instantiate the `DirectTokenProvider` which is a descendent of `DefaultTokenProvider`
-#### iOS
-```swift
-    let tokenProvider = DirectTokenProvider(apiUrl: "https://api.<SHORT IDENTIFIER>.enterprise.bodybank.com", apiKey: "API KEY")
-    tokenProvider.tokenDuration =  86400
-    tokenProvider.userId = "unique user id"
-    try! BodyBankEnterprise.initialize(tokenProvider: tokenProvider)
-```
-
 #### Android
 ```
     let tokenProvider = DirectTokenProvider( apiUrl = "https://api.<SHORT IDENTIFIER>.enterprise.bodybank.com", apiKey = "API KEY")
@@ -142,22 +87,6 @@ BodyBankEnterprise.clearCredentials()
 ```
 
 #### SDK initialization
-#### iOS
-Initialize BodyBank in `AppDelegate.swift`
-```
-import BodyBankEnterprise
-
-func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool{
-    let tokenProvider = DefaultTokenProvider()
-    tokenProvider.setRestoreTokenBlock(block: {[unowned self] callback in
-        let token = BodyBankToken()
-        //Refresh token and specify jwt_token & identity_id
-        callback(token, nil)
-    })
-    BodyBankEnterprise.initialize(tokenProvider: tokenProvider)
-    return true
-}
-```
 
 #### Android
 Initialize BodyBank in `Application` subclass
@@ -197,33 +126,14 @@ class Application : MultiDexApplication() {
 ```
 #### Modifying JWT Token after initialization
 The active Default Token Provider can be fetched by
-#### iOS/Android
-```swift
+#### Android
+```kotlin
 BodyBankEnterprise.defaultTokenProvider()
 
 ```
 Please modify jwt using this reference.
 
 #### Create New BodyBank Estimation Request
-
-#### iOS
-```swift
-var params = EstimationParameter()
-params.frontImage = Estimation.shared.frontImage
-params.sideImage = Estimation.shared.sideImage
-params.heightInCm = Estimation.shared.heightInCm
-params.weightInKg = Estimation.shared.weight!
-params.failOnAutomaticEstimationFailure = true
-params.age = 30
-params.gender = .male
-BodyBankEnterprise.createEstimationRequest(estimationParameter: params, callback: { (request, errors) in
-    if error == nil{
-        print(request?.id)
-    }else{
-        print(error)
-    }
-})
-```
 
 #### Android
 
@@ -244,19 +154,6 @@ BodyBankEnterprise.createEstimationRequest(params) { request, errors ->
 }
 ```
 #### Get BodyBank Estimation Requests
-#### iOS
-```swift
-// List estimation requests
-BodyBankEnterprise.listEstimationRequests(limit: 20, nextToken: nil, callback: { (requests, nextToken, errors) in
-    print(requests)
-})
-
-// Get estimation request and result detail
-BodyBankEnterprise.getEstimationRequest(id: id, callback: { (request, errors) in
-    print(request)
-})
-
-```
 
 #### Android
 ```kotlin
@@ -272,16 +169,6 @@ BodyBankEnterprise.getEstimationRequest(id) { request, errors ->
 
 #### Subscribe & Unsubscribe Changes
 
-#### iOS
-```swift
-BodyBankEnterprise.subscribeUpdateOfEstimationRequests(callback: { (request, errorss) in
-    print(errors)
-})
-
-
-BodyBankEnterprise.unsubscribeEstimationRequests()
-
-```
 #### Android
 ```kotlin
 BodyBankEnterprise.subscribeUpdateOfEstimationRequests(callback = {request, error ->
@@ -293,14 +180,6 @@ BodyBankEnterprise.unsubscribeUpdateOfEstimationRequests()
 
 
 #### Get images
-
-#### iOS
-```swift
-let url = request.frontImage?.downloadableURL
-//Do anything with pre-signed downloadable URL
-//It has expiration time.
-
-```
 
 #### Android
 ```kotlin
